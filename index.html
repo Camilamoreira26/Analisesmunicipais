@@ -44,6 +44,30 @@
   header .updated { margin-left: auto; font-size: 0.72rem; color: #F0D9B8; text-align: right; line-height: 1.6; }
   header .updated strong { color: #FFF8F0; }
 
+  /* ── UPDATE BUTTON ── */
+  .btn-update {
+    margin-left: 12px; padding: 8px 18px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12); color: #FFF8F0; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; white-space: nowrap; letter-spacing: .3px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-update:hover:not(:disabled) { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.6); }
+  .btn-update:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-update.loading { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    padding: 12px 20px; border-radius: 10px; font-size: 0.84rem; font-weight: 600;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: none;
+    max-width: 340px; line-height: 1.4;
+  }
+  #toast.ok  { background: #F0FFF6; border: 1px solid #6EE7B7; color: #065F46; }
+  #toast.err { background: #FFF0F0; border: 1px solid #FCA5A5; color: #7F1D1D; }
+  #toast.show { display: block; animation: slideIn .3s ease; }
+  @keyframes slideIn { from { transform: translateY(12px); opacity:0 } to { transform: translateY(0); opacity:1 } }
+
   /* ── LAYOUT ── */
   main { padding: 24px 32px; max-width: 1440px; margin: 0 auto; }
 
@@ -238,6 +262,9 @@
     <p>Cadastro &Uacute;nico de Conv&ecirc;nios &bull; Painel de Regularidade Municipal &bull; Para&iacute;ba</p>
   </div>
   <div class="updated" id="updatedAt"></div>
+  <button class="btn-update" id="btnUpdate" onclick="atualizarDados()" title="Busca dados novos do banco e publica no GitHub">
+    &#8635; Atualizar Dados
+  </button>
 </header>
 
 <main>
@@ -262,6 +289,8 @@
 </footer>
 
 <!-- MODAL -->
+<div id="toast"></div>
+
 <div class="modal-overlay" id="modalOverlay" onclick="bgClose(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -474,6 +503,46 @@ function bgClose(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+/* ── ATUALIZAR DADOS ── */
+var toastTimer = null;
+function toast(msg, tipo) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + tipo;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.className = ''; }, 6000);
+}
+
+function atualizarDados() {
+  var btn = document.getElementById('btnUpdate');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '⏳ Atualizando...';
+
+  fetch('http://localhost:5001/ping')
+    .then(function(r){ return r.json(); })
+    .then(function() {
+      toast('Conectado ao servidor. Buscando dados do banco...', 'ok');
+      return fetch('http://localhost:5001/atualizar');
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        toast('✔ Dashboard atualizado com sucesso! (' + data.registros + ' registros) — Recarregue a página em 1 minuto.', 'ok');
+      } else {
+        toast('⚠ Erro: ' + data.erro, 'err');
+      }
+    })
+    .catch(function() {
+      toast('❌ Servidor local não encontrado. Abra o iniciar_servidor.bat na sua máquina antes de atualizar.', 'err');
+    })
+    .finally(function() {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.innerHTML = '&#8635; Atualizar Dados';
+    });
+}
 
 /* ── init ── */
 (function() {
