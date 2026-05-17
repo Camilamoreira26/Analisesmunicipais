@@ -30,11 +30,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   display:flex;align-items:center;gap:10px;
 }
 .brand-icon{
-  width:32px;height:32px;border-radius:8px;
-  background:rgba(255,255,255,.18);
+  width:34px;height:34px;border-radius:9px;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);
   display:flex;align-items:center;justify-content:center;
-  font-size:1rem;flex-shrink:0;color:#FFF8F0;
+  flex-shrink:0;
 }
+.brand-icon svg{width:18px;height:18px;fill:none;stroke:#FFF8F0;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .brand-text{font-size:.82rem;font-weight:800;color:#FFF8F0;line-height:1.2}
 .brand-sub{font-size:.6rem;color:rgba(255,255,255,.65);margin-top:2px}
 
@@ -50,11 +51,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .nav-item:hover{background:var(--sb-hover);border-left-color:rgba(255,255,255,.4)}
 .nav-item.active{background:rgba(255,255,255,.18);border-left-color:#FFF8F0}
 .nav-icon{
-  width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.15);
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);
   display:flex;align-items:center;justify-content:center;
-  font-size:.9rem;flex-shrink:0;color:#FFF8F0;
+  flex-shrink:0;transition:all .18s;
 }
-.nav-item.active .nav-icon{background:rgba(255,255,255,.25)}
+.nav-icon svg{width:15px;height:15px;fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-item:hover .nav-icon{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35)}
+.nav-item:hover .nav-icon svg{stroke:#FFF8F0}
+.nav-item.active .nav-icon{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4)}
+.nav-item.active .nav-icon svg{stroke:#FFF8F0}
 .nav-label{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.8)}
 .nav-item.active .nav-label{color:#FFF8F0;font-weight:700}
 .sb-footer{margin-top:auto;padding:10px 14px;font-size:.6rem;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.1)}
@@ -97,6 +103,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .filter-pill{border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.74rem;cursor:pointer;background:var(--card2);color:var(--muted);transition:all .2s;font-weight:600}
 .filter-pill.active{background:var(--primary);color:#FFF8F0;border-color:var(--primary)}
 .filter-pill:hover:not(.active){border-color:var(--primary);color:var(--primary)}
+/* rank pills idle state — colored border + tinted text */
+.rank-A-pill{border-color:#2D7A4F;color:#2D7A4F}
+.rank-B-pill{border-color:#4A9E6B;color:#3a7d55}
+.rank-C-pill{border-color:var(--orange);color:var(--orange)}
+.rank-D-pill{border-color:#C05A00;color:#C05A00}
+.rank-E-pill{border-color:var(--red);color:var(--red)}
+.rank-A-pill.active{background:#2D7A4F;border-color:#2D7A4F;color:#fff}
+.rank-B-pill.active{background:#4A9E6B;border-color:#4A9E6B;color:#fff}
+.rank-C-pill.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.rank-D-pill.active{background:#C05A00;border-color:#C05A00;color:#fff}
+.rank-E-pill.active{background:var(--red);border-color:var(--red);color:#fff}
 .filter-count{font-size:.68rem;color:var(--muted);margin-left:auto;white-space:nowrap}
 
 /* ── SECTION TITLE ── */
@@ -213,16 +230,25 @@ footer strong{color:var(--primary)}
   <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="brand">
-      <div class="brand-icon">PB</div>
+      <div class="brand-icon">
+        <!-- map pin / location icon -->
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
       <div><div class="brand-text">Painel PB</div><div class="brand-sub">An&aacute;lise Municipal</div></div>
     </div>
     <div class="nav-section">M&oacute;dulos</div>
     <div class="nav-item active" id="nav-cauc" onclick="goPage('cauc')">
-      <div class="nav-icon">&#128203;</div>
+      <div class="nav-icon">
+        <!-- checklist / clipboard icon -->
+        <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3h6v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V3z"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      </div>
       <span class="nav-label">CAUC</span>
     </div>
     <div class="nav-item" id="nav-siconfi" onclick="goPage('siconfi')">
-      <div class="nav-icon">&#128200;</div>
+      <div class="nav-icon">
+        <!-- bar chart / ranking icon -->
+        <svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+      </div>
       <span class="nav-label">Siconfi</span>
     </div>
     <div class="sb-footer" id="sfooter"></div>
@@ -265,11 +291,11 @@ footer strong{color:var(--primary)}
         <div class="search-bar">
           <input type="text" id="sc-search" placeholder="&#128269; Buscar munic&iacute;pio&hellip;" oninput="scFilterCards()">
           <button class="filter-pill active" id="sc-pill-all" onclick="scFilter('all')">Todos</button>
-          <button class="filter-pill" id="sc-pill-A" onclick="scFilter('A')">A</button>
-          <button class="filter-pill" id="sc-pill-B" onclick="scFilter('B')">B</button>
-          <button class="filter-pill" id="sc-pill-C" onclick="scFilter('C')">C</button>
-          <button class="filter-pill" id="sc-pill-D" onclick="scFilter('D')">D</button>
-          <button class="filter-pill" id="sc-pill-E" onclick="scFilter('E')">E</button>
+          <button class="filter-pill sc-rank-pill rank-A-pill" id="sc-pill-A" onclick="scFilter('A')">A &mdash; Excelente</button>
+          <button class="filter-pill sc-rank-pill rank-B-pill" id="sc-pill-B" onclick="scFilter('B')">B &mdash; Bom</button>
+          <button class="filter-pill sc-rank-pill rank-C-pill" id="sc-pill-C" onclick="scFilter('C')">C &mdash; Regular</button>
+          <button class="filter-pill sc-rank-pill rank-D-pill" id="sc-pill-D" onclick="scFilter('D')">D &mdash; Insuficiente</button>
+          <button class="filter-pill sc-rank-pill rank-E-pill" id="sc-pill-E" onclick="scFilter('E')">E &mdash; Cr&iacute;tico</button>
           <span class="filter-count" id="sc-count"></span>
         </div>
         <div class="siconfi-grid" id="sc-grid"></div>
