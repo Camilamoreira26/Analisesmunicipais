@@ -506,11 +506,14 @@ function scRankingRow(){
   var n=DIARIO_DATA.length,rc={A:0,B:0,C:0,D:0,E:0};
   DIARIO_DATA.forEach(function(r){if(rc[r.class_ranking]!==undefined)rc[r.class_ranking]++});
   document.getElementById('sc-ranking-row').innerHTML=['A','B','C','D','E'].map(function(r){
-    return'<div class="kpi-card" style="border-top-color:'+RANK_COLORS[r]+';cursor:pointer" onclick="scFilter(''+r+'')">'
+    return'<div class="kpi-card" style="border-top-color:'+RANK_COLORS[r]+';cursor:pointer" data-rank="'+r+'">'
       +'<span class="label">Classe '+r+' &mdash; '+RANK_LABELS[r]+'</span>'
       +'<span class="value" style="color:'+RANK_COLORS[r]+'">'+rc[r]+'</span>'
-      +'<span class="sub">'+((rc[r]/n)*100).toFixed(1)+'% dos munic&iacute;pios</span></div>';
+      +'<span class="sub">'+((rc[r]/n)*100).toFixed(1)+'% dos municípios</span></div>';
   }).join('');
+  document.querySelectorAll('#sc-ranking-row .kpi-card').forEach(function(el){
+    el.addEventListener('click',function(){scFilter(this.getAttribute('data-rank'))});
+  });
 }
 
 function scFilter(f){
