@@ -393,7 +393,8 @@ footer strong{color:var(--primary)}
         <div class="siconfi-grid" id="sc-grid"></div>
         <div class="section-title" style="margin-top:8px">Detalhamento por Verifica&ccedil;&atilde;o &mdash; Siconficombase</div>
         <div class="search-bar">
-          <input type="text" id="cb-search" placeholder="&#128269; Munic&iacute;pio ou verifica&ccedil;&atilde;o&hellip;" oninput="cbRender()">
+          <select id="cb-muni" onchange="cbRender()" style="min-width:200px"><option value="">Todos os munic&iacute;pios</option></select>
+          <input type="text" id="cb-search" placeholder="&#128269; Filtrar verifica&ccedil;&atilde;o&hellip;" oninput="cbRender()" style="min-width:180px">
           <select id="cb-dim" onchange="cbRender()"><option value="">Todas as dimens&otilde;es</option></select>
           <select id="cb-val" onchange="cbRender()">
             <option value="">Todos os valores</option>
@@ -669,11 +670,15 @@ function scRenderCards(){
 // ══ SICONFICOMBASE ════════════════════════════════════════════════════════════
 var cbPage=1,CB_PAGE_SIZE=50;
 
-// Popula select de dimensão
+// Popula selects de município e dimensão
 (function(){
+  var munis=[...new Set(CB_DATA.map(function(r){return r.nome||''}))].filter(Boolean).sort(function(a,b){return a.localeCompare(b,'pt-BR')});
+  var sm=document.getElementById('cb-muni');
+  munis.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sm.appendChild(o)});
+
   var dims=[...new Set(CB_DATA.map(function(r){return r.no_dim||''}))].filter(Boolean).sort();
-  var sel=document.getElementById('cb-dim');
-  dims.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o)});
+  var sd=document.getElementById('cb-dim');
+  dims.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d;sd.appendChild(o)});
 })();
 
 function cbValClass(v){var n=parseFloat(v);if(isNaN(n))return'zero';if(n===0)return'zero';if(n===1)return'full';return'partial'}
@@ -684,12 +689,14 @@ function cbValFilter(v,f){
   if(f==='0')return n===0;if(f==='1')return n===1;if(f==='mid')return n>0&&n<1;return true;
 }
 function cbFiltered(){
+  var muni=document.getElementById('cb-muni').value;
   var s=(document.getElementById('cb-search').value||'').toLowerCase();
   var dim=document.getElementById('cb-dim').value;
   var val=document.getElementById('cb-val').value;
   return CB_DATA.filter(function(r){
-    var ms=!s||(r.nome&&r.nome.toLowerCase().indexOf(s)!==-1)||(r.no_verif&&r.no_verif.toLowerCase().indexOf(s)!==-1);
-    return ms&&(!dim||r.no_dim===dim)&&cbValFilter(r.valor,val);
+    var muniOk=!muni||(r.nome===muni);
+    var textOk=!s||(r.no_verif&&r.no_verif.toLowerCase().indexOf(s)!==-1);
+    return muniOk&&textOk&&(!dim||r.no_dim===dim)&&cbValFilter(r.valor,val);
   });
 }
 function cbRender(){cbPage=1;cbDraw()}
