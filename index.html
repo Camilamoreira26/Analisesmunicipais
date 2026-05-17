@@ -219,14 +219,95 @@ footer{text-align:center;padding:10px;font-size:.67rem;color:var(--muted);border
 footer strong{color:var(--primary)}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--primary)}
-@media(max-width:680px){
-  #sidebar{width:52px}.brand-text,.brand-sub,.nav-label,.nav-section,.sb-footer{display:none}
-  #content{padding:12px}.muni-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
+/* ── HAMBURGER ── */
+.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:36px;height:36px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);cursor:pointer;flex-shrink:0;margin-right:4px}
+.hamburger span{display:block;width:17px;height:2px;background:#FFF8F0;border-radius:2px;transition:all .22s}
+
+/* ── SIDEBAR OVERLAY (mobile) ── */
+#sb-overlay{display:none;position:fixed;inset:0;background:rgba(44,26,8,.45);z-index:90;backdrop-filter:blur(1px)}
+#sb-overlay.show{display:block}
+
+/* ── TABLE SCROLL WRAPPER ── */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── TABLET (≤1024px) ── */
+@media(max-width:1024px){
+  #sidebar{width:58px}
+  .brand-text,.brand-sub,.nav-label,.nav-section,.sb-footer{display:none}
+  .brand{padding:12px 10px;justify-content:center}
+  .nav-item{padding:10px;justify-content:center}
+  .kpi-row{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  #topbar{padding:11px 18px}
+  #content{padding:16px 18px}
+  .siconfi-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+}
+
+/* ── MOBILE (≤640px) ── */
+@media(max-width:640px){
+  #sidebar{
+    position:fixed;top:0;left:0;bottom:0;width:200px;
+    transform:translateX(-100%);transition:transform .25s ease;
+    z-index:100;
+  }
+  #sidebar.open{transform:translateX(0)}
+  .brand-text,.brand-sub,.nav-label,.nav-section,.sb-footer{display:block}
+  .brand{padding:14px 12px;justify-content:flex-start}
+  .nav-item{padding:9px 12px;justify-content:flex-start}
+
+  .hamburger{display:flex}
+
+  #topbar{padding:9px 14px;gap:8px}
+  #topbar h1{font-size:.95rem}
+  #topbar p{font-size:.67rem}
+  #topbar .updated{display:none}
+
+  #content{padding:12px 10px}
+
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-card{padding:11px 13px}
+  .kpi-card .value{font-size:1.55rem}
+
+  .muni-grid{grid-template-columns:repeat(2,1fr);gap:7px}
+  .muni-card{padding:10px 11px}
+  .muni-name{font-size:.74rem}
+
+  #sc-ranking-row{grid-template-columns:repeat(2,1fr) !important;gap:8px}
+  .siconfi-grid{grid-template-columns:1fr;gap:9px}
+
+  .search-bar{flex-direction:column;align-items:stretch;gap:7px}
+  .search-bar input,.search-bar select{width:100%;min-width:0}
+  .filter-pill{text-align:center}
+
+  .table-wrap{border-radius:8px}
+  .combase-table{font-size:.71rem}
+  .combase-table th,.combase-table td{padding:6px 8px}
+  .col-fin{display:none}
+
+  .modal{border-radius:0;max-height:100vh;height:100%}
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-overlay.open{align-items:flex-end}
+  .modal-header{padding:14px 16px}
+  .modal-header h2{font-size:.95rem}
+  .modal-summary{gap:14px;padding:9px 14px}
+  .ms-val{font-size:1.2rem}
+
+  #toast{left:12px;right:12px;bottom:12px;max-width:none}
+}
+
+/* ── SMALL MOBILE (≤380px) ── */
+@media(max-width:380px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .kpi-card .value{font-size:1.35rem}
+  .muni-grid{grid-template-columns:1fr}
+  #sc-ranking-row{grid-template-columns:1fr 1fr !important}
 }
 </style>
 </head>
 <body>
 <div id="app">
+
+<!-- SIDEBAR OVERLAY -->
+<div id="sb-overlay" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR -->
   <aside id="sidebar">
@@ -258,6 +339,9 @@ footer strong{color:var(--primary)}
   <!-- MAIN -->
   <div id="main-area">
     <div id="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
       <div>
         <h1 id="topTitle">CAUC <span class="header-badge">PB</span></h1>
         <p id="topSub">Cadastro &Uacute;nico de Conv&ecirc;nios &bull; Regularidade Municipal</p>
@@ -319,7 +403,7 @@ footer strong{color:var(--primary)}
           </select>
           <span class="filter-count" id="cb-count"></span>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap"><div class="table-scroll">
           <table class="combase-table" id="cb-table">
             <thead><tr>
               <th>Munic&iacute;pio</th><th>Valor</th><th>Dimens&atilde;o</th>
@@ -328,7 +412,7 @@ footer strong{color:var(--primary)}
             </tr></thead>
             <tbody id="cb-body"></tbody>
           </table>
-        </div>
+        </div></div>
         <div class="pagination" id="cb-pagination"></div>
       </div>
 
@@ -384,6 +468,24 @@ function goPage(p){
   document.getElementById('nav-'+p).classList.add('active');
   document.getElementById('topTitle').innerHTML=PAGES[p].title;
   document.getElementById('topSub').innerHTML=PAGES[p].sub;
+  closeSidebar();
+}
+
+function toggleSidebar(){
+  var sb=document.getElementById('sidebar');
+  var ov=document.getElementById('sb-overlay');
+  if(sb.classList.contains('open')){closeSidebar();}
+  else{sb.classList.add('open');ov.classList.add('show');document.body.style.overflow='hidden';}
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sb-overlay').classList.add('show');
+  document.body.style.overflow='hidden';
 }
 
 // ══ CAUC ══════════════════════════════════════════════════════════════════════
