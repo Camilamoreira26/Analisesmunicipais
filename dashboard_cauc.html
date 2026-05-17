@@ -146,6 +146,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .sc-stat{background:var(--card2);border-radius:7px;padding:5px 8px}
 .st-label{font-size:.57rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
 .st-value{font-size:.85rem;font-weight:800;color:var(--primary);margin-top:1px}
+.pos-badge{display:inline-block;font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:10px;background:rgba(184,120,42,.12);color:var(--primary);border:1px solid rgba(184,120,42,.2)}
 
 /* ── COMBASE TABLE ── */
 .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
@@ -284,7 +285,6 @@ footer strong{color:var(--primary)}
 
       <!-- PAGE SICONFI -->
       <div class="page" id="page-siconfi">
-        <div class="kpi-row" id="sc-kpis"></div>
         <div class="section-title">Classifica&ccedil;&atilde;o por Desempenho</div>
         <div class="kpi-row" id="sc-ranking-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px"></div>
         <div class="section-title">Munic&iacute;pios &mdash; Indicadores de Acertos e Ranking</div>
@@ -296,6 +296,14 @@ footer strong{color:var(--primary)}
           <button class="filter-pill sc-rank-pill rank-C-pill" id="sc-pill-C" onclick="scFilter('C')">C &mdash; Regular</button>
           <button class="filter-pill sc-rank-pill rank-D-pill" id="sc-pill-D" onclick="scFilter('D')">D &mdash; Insuficiente</button>
           <button class="filter-pill sc-rank-pill rank-E-pill" id="sc-pill-E" onclick="scFilter('E')">E &mdash; Cr&iacute;tico</button>
+          <select id="sc-sort" onchange="scRenderCards()" style="margin-left:4px">
+            <option value="rank_estado">Ordenar: Rank PB (melhor)</option>
+            <option value="rank_estado_desc">Ordenar: Rank PB (pior)</option>
+            <option value="rank_geral">Ordenar: Rank Geral (melhor)</option>
+            <option value="acertos_desc">Ordenar: % Acertos (maior)</option>
+            <option value="acertos_asc">Ordenar: % Acertos (menor)</option>
+            <option value="nome">Ordenar: Nome A-Z</option>
+          </select>
           <span class="filter-count" id="sc-count"></span>
         </div>
         <div class="siconfi-grid" id="sc-grid"></div>
@@ -494,22 +502,11 @@ var RANK_LABELS={A:'Excelente',B:'Bom',C:'Regular',D:'Insuficiente',E:'Crítico'
 var RANK_COLORS={A:'#2D7A4F',B:'#4A9E6B',C:'var(--orange)',D:'#C05A00',E:'var(--red)'};
 var scCurFilter='all',scCurSearch='';
 
-function scKPIs(){
-  var n=DIARIO_DATA.length;
-  var avgAcertos=DIARIO_DATA.reduce(function(a,r){return a+parseFloat(r.pe_acertos||0)},0)/n;
-  var avgNota=DIARIO_DATA.reduce(function(a,r){return a+parseFloat(r.va_nota||0)},0)/n;
-  var byRankEstado=DIARIO_DATA.slice().sort(function(a,b){return parseInt(a.va_rank_estado)-parseInt(b.va_rank_estado)});
-  var best=byRankEstado[0],worst=byRankEstado[byRankEstado.length-1];
-  var rc={A:0,B:0,C:0,D:0,E:0};
+function scRankingRow(){
+  var n=DIARIO_DATA.length,rc={A:0,B:0,C:0,D:0,E:0};
   DIARIO_DATA.forEach(function(r){if(rc[r.class_ranking]!==undefined)rc[r.class_ranking]++});
-  document.getElementById('sc-kpis').innerHTML=[
-    kpiCard('ok','M&eacute;dia de Acertos',(avgAcertos*100).toFixed(1)+'%','dos 169 verificadores'),
-    kpiCard('','Nota M&eacute;dia PB',avgNota.toFixed(1),'pontos no ranking nacional'),
-    kpiCard('ok','Melhor Ranking PB',best.va_rank_estado+' PB',esc(best.nome.replace(/ - PB/,''))),
-    kpiCard('warn','Maior Desafio',worst.va_rank_estado+' PB',esc(worst.nome.replace(/ - PB/,'')))
-  ].join('');
   document.getElementById('sc-ranking-row').innerHTML=['A','B','C','D','E'].map(function(r){
-    return'<div class="kpi-card" style="border-top-color:'+RANK_COLORS[r]+'">'
+    return'<div class="kpi-card" style="border-top-color:'+RANK_COLORS[r]+';cursor:pointer" onclick="scFilter(''+r+'')">'
       +'<span class="label">Classe '+r+' &mdash; '+RANK_LABELS[r]+'</span>'
       +'<span class="value" style="color:'+RANK_COLORS[r]+'">'+rc[r]+'</span>'
       +'<span class="sub">'+((rc[r]/n)*100).toFixed(1)+'% dos munic&iacute;pios</span></div>';
@@ -522,21 +519,39 @@ function scFilter(f){
   scRenderCards();
 }
 function scFilterCards(){scCurSearch=document.getElementById('sc-search').value.toLowerCase();scRenderCards()}
+
 function scFiltered(){
-  return DIARIO_DATA.filter(function(r){
+  var list=DIARIO_DATA.filter(function(r){
     return(scCurFilter==='all'||r.class_ranking===scCurFilter)
       &&(!scCurSearch||r.nome.toLowerCase().indexOf(scCurSearch)!==-1);
   });
+  var sort=document.getElementById('sc-sort').value;
+  list=list.slice().sort(function(a,b){
+    if(sort==='rank_estado')    return parseInt(a.va_rank_estado)-parseInt(b.va_rank_estado);
+    if(sort==='rank_estado_desc')return parseInt(b.va_rank_estado)-parseInt(a.va_rank_estado);
+    if(sort==='rank_geral')     return parseInt(a.va_rank_geral)-parseInt(b.va_rank_geral);
+    if(sort==='acertos_desc')   return parseFloat(b.pe_acertos)-parseFloat(a.pe_acertos);
+    if(sort==='acertos_asc')    return parseFloat(a.pe_acertos)-parseFloat(b.pe_acertos);
+    if(sort==='nome')           return a.nome.localeCompare(b.nome,'pt-BR');
+    return 0;
+  });
+  return list;
 }
+
 function scRenderCards(){
   var list=scFiltered();
   document.getElementById('sc-count').textContent=list.length+' município'+(list.length!==1?'s':'');
-  document.getElementById('sc-grid').innerHTML=list.map(function(d){
+  document.getElementById('sc-grid').innerHTML=list.map(function(d,i){
     var nome=d.nome.replace(/ - PB/,'');
     var acPct=(parseFloat(d.pe_acertos||0)*100).toFixed(1);
+    var sort=document.getElementById('sc-sort').value;
+    var posLabel='';
+    if(sort==='rank_estado'||sort==='rank_estado_desc') posLabel='<span class="pos-badge">'+d.va_rank_estado+'&ordm; PB</span>';
+    else if(sort==='rank_geral') posLabel='<span class="pos-badge">'+d.va_rank_geral+'&ordm; BR</span>';
     return'<div class="sc-card rank-'+d.class_ranking+'">'
       +'<div class="sc-header"><div class="sc-name">'+esc(nome)+'</div>'
       +'<span class="sc-rank-badge rb-'+d.class_ranking+'">'+d.class_ranking+'</span></div>'
+      +(posLabel?'<div>'+posLabel+'</div>':'')
       +'<div class="sc-stats">'
       +'<div class="sc-stat"><div class="st-label">% Acertos</div><div class="st-value">'+acPct+'%</div></div>'
       +'<div class="sc-stat"><div class="st-label">Nota</div><div class="st-value">'+parseFloat(d.va_nota).toFixed(1)+'</div></div>'
@@ -627,7 +642,7 @@ function atualizarDados(){
   document.getElementById('updatedAt').innerHTML='Atualizado em<br><strong>'+f+'</strong>';
   document.getElementById('footerDate').textContent=f;
   document.getElementById('sfooter').textContent=f;
-  caucKPIs();caucRenderGrid();scKPIs();scRenderCards();cbDraw();
+  caucKPIs();caucRenderGrid();scRankingRow();scRenderCards();cbDraw();
 })();
 </script>
 </body>
