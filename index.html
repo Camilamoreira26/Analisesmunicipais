@@ -19,11 +19,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 /* ── SIDEBAR ── */
 #sidebar{
-  width:158px;flex-shrink:0;
+  width:200px;flex-shrink:0;
   background:linear-gradient(180deg,#9A6820 0%,#8A5A18 60%,#7A4E14 100%);
   display:flex;flex-direction:column;
-  box-shadow:1px 0 6px rgba(80,40,0,.18);
-  transition:width .22s;overflow:hidden;
+  box-shadow:2px 0 10px rgba(80,40,0,.2);
+  overflow:hidden;
   position:fixed;top:0;left:0;bottom:0;z-index:10;
 }
 .brand{
@@ -66,7 +66,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .sb-footer{margin-top:auto;padding:10px 14px;font-size:.6rem;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.1)}
 
 /* ── MAIN ── */
-#main-area{display:flex;flex-direction:column;min-width:0;overflow:hidden;margin-left:176px;height:100vh}
+#main-area{display:flex;flex-direction:column;overflow:hidden;margin-left:200px;width:calc(100% - 200px);height:100vh}
 #topbar{
   background:linear-gradient(135deg,#7A4A10 0%,var(--primary) 60%,var(--prim2) 100%);
   padding:13px 26px;display:flex;align-items:center;gap:12px;
@@ -232,7 +232,7 @@ footer strong{color:var(--primary)}
 /* ── TABLET (≤1024px) ── */
 @media(max-width:1024px){
   #sidebar{width:56px}
-  #main-area{margin-left:56px}
+  #main-area{margin-left:56px;width:calc(100% - 56px)}
   .brand-text,.brand-sub,.nav-label,.nav-section,.sb-footer{display:none}
   .brand{padding:12px 10px;justify-content:center}
   .nav-item{padding:10px;justify-content:center}
@@ -306,10 +306,15 @@ footer strong{color:var(--primary)}
     </div>
     <div class="nav-item" id="nav-siconfi" onclick="goPage('siconfi')">
       <div class="nav-icon">
-        <!-- bar chart / ranking icon -->
         <svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
       </div>
-      <span class="nav-label">Siconfi</span>
+      <span class="nav-label">Siconfi Di&aacute;rio</span>
+    </div>
+    <div class="nav-item" id="nav-siconfi-anual" onclick="goPage('siconfi-anual')">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx=".5"/></svg>
+      </div>
+      <span class="nav-label">Siconfi Anual</span>
     </div>
     <div class="sb-footer" id="sfooter"></div>
   </aside>
@@ -395,6 +400,18 @@ footer strong{color:var(--primary)}
         <div class="pagination" id="cb-pagination"></div>
       </div>
 
+      <!-- PAGE SICONFI ANUAL -->
+      <div class="page" id="page-siconfi-anual">
+        <div class="section-title">Siconfi Anual &mdash; Em breve</div>
+        <div style="text-align:center;padding:60px 20px;color:var(--muted)">
+          <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:16px">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx=".5"/>
+          </svg>
+          <p style="font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:6px">M&oacute;dulo em constru&ccedil;&atilde;o</p>
+          <p style="font-size:.8rem">Os dados anuais do Siconfi estar&atilde;o dispon&iacute;veis em breve.</p>
+        </div>
+      </div>
+
     </div>
     <footer>Painel Municipal PB &bull; <strong>Cauc_pb</strong> &bull; <strong>SiconfiDiario</strong> &bull; <strong>Siconficombase</strong> &bull; <span id="footerDate"></span></footer>
   </div>
@@ -437,8 +454,9 @@ function fmt(d){return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digi
 
 // ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
 var PAGES={
-  cauc:   {title:'CAUC <span class=\'header-badge\'>PB</span>',sub:'Cadastro &Uacute;nico de Conv&ecirc;nios &bull; Regularidade Municipal'},
-  siconfi:{title:'Siconfi <span class=\'header-badge\'>PB</span>',sub:'Informa&ccedil;&otilde;es Cont&aacute;beis e Fiscais &bull; Desempenho Municipal'}
+  cauc:            {title:'CAUC <span class=\'header-badge\'>PB</span>',sub:'Cadastro &Uacute;nico de Conv&ecirc;nios &bull; Regularidade Municipal'},
+  siconfi:         {title:'Siconfi Di&aacute;rio <span class=\'header-badge\'>PB</span>',sub:'Informa&ccedil;&otilde;es Cont&aacute;beis e Fiscais &bull; Desempenho Municipal'},
+  'siconfi-anual': {title:'Siconfi Anual <span class=\'header-badge\'>PB</span>',sub:'Dados Anuais do Siconfi &bull; Em constru&ccedil;&atilde;o'}
 };
 function goPage(p){
   document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active')});
