@@ -226,6 +226,7 @@ footer strong{color:var(--primary)}
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;min-width:52px;padding:3px 10px;border-radius:6px;font-size:.76rem;font-weight:800;color:#fff}
 .icf-badge{display:inline-flex;align-items:center;justify-content:center;width:34px;height:28px;border-radius:6px;font-size:.9rem;font-weight:900;color:#fff}
 .icf-A{background:#2D7A4F}.icf-B{background:#4A9E6B}.icf-C{background:#C8922A}.icf-D{background:#C05A00}.icf-E{background:#A8261A}
+.ri-pag{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
 
 /* ── SICONFI ANUAL GRAFICOS ── */
 .an-charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
@@ -925,41 +926,60 @@ function anDrawBarChart(svgId, rows, field, labelFn, barColor){
   svg.innerHTML=out;
 }
 
-// Ranking e ICF tables
+// Ranking e ICF tables com paginacao de 20 itens
+var AN_RANK_PAGE=1,AN_RANK_ROWS=[];
+var AN_ICF_PAGE=1,AN_ICF_ROWS=[];
+var AN_RI_PS=20;
+
+function anRankICFDraw(){
+  var maxRank=Math.max.apply(null,AN_RANK_ROWS.map(function(r){return r.class_ranking||0}))||1;
+  var minRank=Math.min.apply(null,AN_RANK_ROWS.filter(function(r){return r.class_ranking>0}).map(function(r){return r.class_ranking}))||1;
+  function rankColor(v){
+    if(!v)return'#CCC';
+    var pct=(v-minRank)/(maxRank-minRank+1);
+    var r=Math.round(140+pct*80),g=Math.round(80+pct*60),b=Math.round(10+pct*40);
+    return'rgb('+r+','+g+','+b+')';
+  }
+  var icfCls={A:'icf-A',B:'icf-B',C:'icf-C',D:'icf-D',E:'icf-E'};
+  function renderRI(containerId,rows,page,buildRow){
+    var ps=AN_RI_PS,total=rows.length,pages=Math.ceil(total/ps)||1;
+    page=Math.min(page,pages);
+    var slice=rows.slice((page-1)*ps,page*ps);
+    var isRank=containerId==='an-rank-table';
+    var html='<table class="an-rank-tbl"><thead><tr><th>Ano</th><th>'+(isRank?'Ranking':'ICF')+'</th></tr></thead><tbody>';
+    slice.forEach(function(r){html+=buildRow(r);});
+    html+='</tbody></table>';
+    if(pages>1){
+      html+='<div class="ri-pag">';
+      html+='<button class="pg-btn" onclick="anRIPage(''+containerId+'','+Math.max(1,page-1)+')" '+(page===1?'disabled':'')+'>&#8249;</button>';
+      for(var i=1;i<=pages;i++)html+='<button class="pg-btn'+(i===page?' active':'')+'" onclick="anRIPage(''+containerId+'','+i+')">'+i+'</button>';
+      html+='<button class="pg-btn" onclick="anRIPage(''+containerId+'','+Math.min(pages,page+1)+')" '+(page===pages?'disabled':'')+'>&#8250;</button>';
+      html+='</div>';
+    }
+    document.getElementById(containerId).innerHTML=html;
+  }
+  renderRI('an-rank-table',AN_RANK_ROWS,AN_RANK_PAGE,function(r){
+    var rv=r.class_ranking||0;
+    return'<tr><td>'+r.exercicio+'</td><td><span class="rank-badge" style="background:'+rankColor(rv)+'">'+(rv||'—')+'</span></td></tr>';
+  });
+  renderRI('an-icf-table',AN_ICF_ROWS,AN_ICF_PAGE,function(r){
+    var lv=r.nota_ranking||'';
+    var cl=icfCls[lv]||'icf-E';
+    return'<tr><td>'+r.exercicio+'</td><td><span class="icf-badge '+cl+'">'+(lv||'—')+'</span></td></tr>';
+  });
+}
+function anRIPage(tbl,p){
+  if(tbl==='an-rank-table')AN_RANK_PAGE=p; else AN_ICF_PAGE=p;
+  anRankICFDraw();
+}
 function anDrawRankICF(rows){
   var rankRow=document.getElementById('an-rank-row');
   if(!rows.length){rankRow.style.display='none';return;}
   rankRow.style.display='';
-  var sorted=rows.slice().sort(function(a,b){return a.exercicio.localeCompare(b.exercicio)}).reverse();
-  // Gradiente para ranking: menor = melhor = mais escuro
-  var maxRank=Math.max.apply(null,sorted.map(function(r){return r.class_ranking||0}))||1;
-  var minRank=Math.min.apply(null,sorted.filter(function(r){return r.class_ranking>0}).map(function(r){return r.class_ranking}))||1;
-  function rankColor(v){
-    if(!v)return'#CCC';
-    var pct=(v-minRank)/(maxRank-minRank+1);
-    // do dourado escuro ao claro
-    var r=Math.round(140+pct*80),g=Math.round(80+pct*60),b=Math.round(10+pct*40);
-    return'rgb('+r+','+g+','+b+')';
-  }
-  // Ranking Nacional = class_ranking (posição numérica nacional)
-  var rankHtml='<table class="an-rank-tbl"><thead><tr><th>Ano</th><th>Ranking</th></tr></thead><tbody>';
-  sorted.forEach(function(r){
-    var rv=r.class_ranking||0;
-    rankHtml+='<tr><td>'+r.exercicio+'</td><td>'
-      +'<span class="rank-badge" style="background:'+rankColor(rv)+'">'+
-      (rv||'—')+'</span></td></tr>';
-  });
-  document.getElementById('an-rank-table').innerHTML='<div style="max-height:260px;overflow-y:auto">'+rankHtml+'</tbody></table></div>';
-  // ICF = nota_ranking (letra A-E)
-  var icfCls={A:'icf-A',B:'icf-B',C:'icf-C',D:'icf-D',E:'icf-E'};
-  var icfHtml='<table class="an-rank-tbl"><thead><tr><th>Ano</th><th>ICF</th></tr></thead><tbody>';
-  sorted.forEach(function(r){
-    var lv=r.nota_ranking||'';
-    var cl=icfCls[lv]||'icf-E';
-    icfHtml+='<tr><td>'+r.exercicio+'</td><td>'
-      +'<span class="icf-badge '+cl+'">'+(lv||'—')+'</span></td></tr>';
-  });
-  document.getElementById('an-icf-table').innerHTML='<div style="max-height:260px;overflow-y:auto">'+icfHtml+'</tbody></table></div>';
+  AN_RANK_ROWS=rows.slice().sort(function(a,b){return b.exercicio.localeCompare(a.exercicio)});
+  AN_ICF_ROWS=AN_RANK_ROWS.slice();
+  AN_RANK_PAGE=1;AN_ICF_PAGE=1;
+  anRankICFDraw();
 }
 
 // Detalhe por verificação
@@ -1101,7 +1121,7 @@ function anRender(){
         poss.DIII+=ANUAL_POSS[y].DIII||0;poss.DIV+=ANUAL_POSS[y].DIV||0;
       }
     });
-    if(yrs.length){poss.DI=parseFloat((poss.DI/yrs.length).toFixed(2));poss.DII=parseFloat((poss.DII/yrs.length).toFixed(2));poss.DIII=parseFloat((poss.DIII/yrs.length).toFixed(2));poss.DIV=parseFloat((poss.DIV/yrs.length).toFixed(2))}
+    if(yrs.length){poss.DI=Math.round(poss.DI/yrs.length);poss.DII=Math.round(poss.DII/yrs.length);poss.DIII=Math.round(poss.DIII/yrs.length);poss.DIV=Math.round(poss.DIV/yrs.length)}
   }
 
   var label=ano?'Exerc\u00edcio '+ano:'M\u00e9dia dos anos';
@@ -1124,11 +1144,11 @@ function anRender(){
         +'<div class="an-dim-stats">'
           +'<div class="an-stat-row">'
             +'<span class="an-stat-label">Pontos Obtidos</span>'
-            +'<span class="an-stat-val" style="color:'+cor+'">'+obt.toFixed(1)+'</span>'
+            +'<span class="an-stat-val" style="color:'+cor+'">'+obt.toFixed(2)+'</span>'
           +'</div>'
           +'<div class="an-stat-row">'
             +'<span class="an-stat-label">Pontos Poss\u00edveis</span>'
-            +'<span class="an-stat-val" style="color:var(--text);font-size:1.2rem">'+pos.toFixed(2)+'</span>'
+            +'<span class="an-stat-val" style="color:var(--text);font-size:1.2rem">'+Math.round(pos)+'</span>'
           +'</div>'
           +'<div class="an-bar"><div class="an-bar-fill" style="width:'+pct+'%;background:'+barCor+'"></div></div>'
         +'</div>'
