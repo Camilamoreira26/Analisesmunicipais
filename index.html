@@ -155,9 +155,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .combase-table td{padding:7px 11px;border-bottom:1px solid var(--beige);color:var(--text);vertical-align:top}
 .combase-table tbody tr:hover td{background:#FDF5EA}
 .col-nome{font-weight:600;min-width:120px;max-width:150px}
-.col-verif{max-width:190px;font-size:.71rem;color:var(--muted)}
-.col-fin{max-width:210px;font-size:.69rem;color:var(--muted);line-height:1.4}
+.col-verif{font-size:.71rem;color:var(--muted);word-break:break-word}
+.col-fin{font-size:.69rem;color:var(--muted);line-height:1.4;word-break:break-word}
 .col-sm{font-size:.71rem;white-space:nowrap}
+.det-fixed{table-layout:fixed;width:100%}
+.det-fixed th:nth-child(1){width:5%}
+.det-fixed th:nth-child(2){width:9%}
+.det-fixed th:nth-child(3){width:22%}
+.det-fixed th:nth-child(4){width:8%}
+.det-fixed th:nth-child(5){width:14%}
+.det-fixed th:nth-child(6){width:35%}
+.det-fixed th:nth-child(7){width:7%}
 
 /* valor badges */
 .vbadge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;padding:2px 9px;border-radius:12px;font-size:.73rem;font-weight:800;white-space:nowrap}
@@ -498,8 +506,7 @@ footer strong{color:var(--primary)}
             </select>
             <span class="filter-count" id="an-det-count"></span>
           </div>
-          <div class="table-wrap"><div class="table-scroll">
-            <table class="combase-table" id="an-det-table">
+          <div class="table-wrap"><table class="combase-table det-fixed" id="an-det-table">
               <thead><tr>
                 <th>Dim.</th><th>C&oacute;digo</th><th>Descri&ccedil;&atilde;o</th>
                 <th>Declara&ccedil;&atilde;o</th><th>Anexo</th><th>Finalidade</th><th>Valor</th>
@@ -984,7 +991,7 @@ function anDrawRankICF(rows){
 
 // Detalhe por verificação
 var AN_DET_DATA=null;
-var anDetPage=1,AN_DET_PS=100;
+var anDetPage=1,AN_DET_PS=20;
 var anDetMuni='',anDetAno='';
 
 (function(){
@@ -1027,10 +1034,10 @@ function anDetDraw(){
     return'<tr>'
       +'<td class="col-sm">'+coBadge+'</td>'
       +'<td class="col-sm" style="font-size:.67rem;font-weight:700;color:var(--primary)">'+esc(r[2])+'</td>'
-      +'<td class="col-verif" title="'+esc(desc)+'">'+esc((desc||'').substring(0,55)+((desc||'').length>55?'\u2026':''))+'</td>'
+      +'<td class="col-verif" title="'+esc(desc)+'">'+esc((desc||'').substring(0,80)+((desc||'').length>80?'\u2026':''))+'</td>'
       +'<td class="col-sm">'+esc(decl)+'</td>'
       +'<td class="col-sm" style="font-size:.67rem">'+esc((anx||'').substring(0,30))+'</td>'
-      +'<td class="col-fin" title="'+esc(fin)+'">'+esc((fin||'').substring(0,70)+((fin||'').length>70?'\u2026':''))+'</td>'
+      +'<td class="col-fin" title="'+esc(fin)+'">'+esc((fin||'').substring(0,120)+((fin||'').length>120?'\u2026':''))+'</td>'
       +'<td><span class="vbadge '+cls+'">'+esc(lbl)+'</span></td>'
     +'</tr>';
   }).join('');
