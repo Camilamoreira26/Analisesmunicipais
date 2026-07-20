@@ -1212,7 +1212,7 @@ function atualizarDados(){
 (function(){
   var now=new Date(),f=fmt(now);
   document.getElementById('updatedAt').innerHTML='Atualizado em<br><strong>'+f+'</strong>';
-  document.getElementById('footerDate').textContent=f;
+  var fd=document.getElementById('footerDate');if(fd)fd.textContent=f;
   document.getElementById('sfooter').textContent=f;
   caucKPIs();caucRenderGrid();scRankingRow();scRenderCards();cbDraw();
 })();
