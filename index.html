@@ -948,38 +948,38 @@ function anRankICFDraw(){
     return'rgb('+r+','+g+','+b+')';
   }
   var icfCls={A:'icf-A',B:'icf-B',C:'icf-C',D:'icf-D',E:'icf-E'};
-  function renderRI(containerId,rows,page,buildRow){
+  function renderRI(isRank,rows,page){
     var ps=AN_RI_PS,total=rows.length,pages=Math.ceil(total/ps)||1;
     page=Math.min(page,pages);
     var slice=rows.slice((page-1)*ps,page*ps);
-    var isRank=containerId==='an-rank-table';
     var html='<table class="an-rank-tbl"><thead><tr><th>Ano</th><th>'+(isRank?'Ranking':'ICF')+'</th></tr></thead><tbody>';
-    slice.forEach(function(r){html+=buildRow(r);});
+    if(isRank){slice.forEach(function(r){var rv=r.class_ranking||0;html+='<tr><td>'+r.exercicio+'</td><td><span class="rank-badge" style="background:'+rankColor(rv)+'">'+(rv||'—')+'</span></td></tr>';});}
+    else{slice.forEach(function(r){var lv=r.nota_ranking||'';var cl=icfCls[lv]||'icf-E';html+='<tr><td>'+r.exercicio+'</td><td><span class="icf-badge '+cl+'">'+(lv||'—')+'</span></td></tr>';});}
     html+='</tbody></table>';
     if(pages>1){
+      var pr=Math.max(1,page-1),nx=Math.min(pages,page+1);
       html+='<div class="ri-pag">';
-      html+='<button class="pg-btn" onclick="anRIPage(''+containerId+'','+Math.max(1,page-1)+')" '+(page===1?'disabled':'')+'>&#8249;</button>';
-      for(var i=1;i<=pages;i++)html+='<button class="pg-btn'+(i===page?' active':'')+'" onclick="anRIPage(''+containerId+'','+i+')">'+i+'</button>';
-      html+='<button class="pg-btn" onclick="anRIPage(''+containerId+'','+Math.min(pages,page+1)+')" '+(page===pages?'disabled':'')+'>&#8250;</button>';
+      html+='<button class="pg-btn" onclick="anRIPage('+isRank+','+pr+')" '+(page===1?'disabled':'')+'>&#8249;</button>';
+      for(var i=1;i<=pages;i++)html+='<button class="pg-btn'+(i===page?' active':'')+'" onclick="anRIPage('+isRank+','+i+')">'+i+'</button>';
+      html+='<button class="pg-btn" onclick="anRIPage('+isRank+','+nx+')" '+(page===pages?'disabled':'')+'>&#8250;</button>';
       html+='</div>';
     }
-    document.getElementById(containerId).innerHTML=html;
+    document.getElementById(isRank?'an-rank-table':'an-icf-table').innerHTML=html;
   }
-  renderRI('an-rank-table',AN_RANK_ROWS,AN_RANK_PAGE,function(r){
-    var rv=r.class_ranking||0;
-    return'<tr><td>'+r.exercicio+'</td><td><span class="rank-badge" style="background:'+rankColor(rv)+'">'+(rv||'—')+'</span></td></tr>';
-  });
-  renderRI('an-icf-table',AN_ICF_ROWS,AN_ICF_PAGE,function(r){
-    var lv=r.nota_ranking||'';
-    var cl=icfCls[lv]||'icf-E';
-    return'<tr><td>'+r.exercicio+'</td><td><span class="icf-badge '+cl+'">'+(lv||'—')+'</span></td></tr>';
-  });
+  renderRI(1,AN_RANK_ROWS,AN_RANK_PAGE);
+  renderRI(0,AN_ICF_ROWS,AN_ICF_PAGE);
+
+
+
+
+
+
+
 }
-function anRIPage(tbl,p){
-  if(tbl==='an-rank-table')AN_RANK_PAGE=p; else AN_ICF_PAGE=p;
+function anRIPage(isRank,p){
+  if(isRank)AN_RANK_PAGE=p; else AN_ICF_PAGE=p;
   anRankICFDraw();
 }
-function anDrawRankICF(rows){
   var rankRow=document.getElementById('an-rank-row');
   if(!rows.length){rankRow.style.display='none';return;}
   rankRow.style.display='';
