@@ -66,7 +66,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .sb-footer{margin-top:auto;padding:10px 14px;font-size:.6rem;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.1)}
 
 /* ── MAIN ── */
-#main-area{display:flex;flex-direction:column;margin-left:200px;width:calc(100% - 200px);height:100vh;min-height:0}
+#main-area{display:flex;flex-direction:column;position:fixed;left:200px;right:0;top:0;bottom:0}
 #topbar{
   background:linear-gradient(135deg,#7A4A10 0%,var(--primary) 60%,var(--prim2) 100%);
   padding:13px 26px;display:flex;align-items:center;gap:12px;
@@ -284,7 +284,7 @@ footer strong{color:var(--primary)}
 /* ── TABLET (≤1024px) ── */
 @media(max-width:1024px){
   #sidebar{width:56px}
-  #main-area{margin-left:56px;width:calc(100% - 56px)}
+  #main-area{left:56px}
   .brand-text,.brand-sub,.nav-label,.nav-section,.sb-footer{display:none}
   .brand{padding:12px 10px;justify-content:center}
   .nav-item{padding:10px;justify-content:center}
@@ -298,7 +298,7 @@ footer strong{color:var(--primary)}
     transform:translateX(-100%);transition:transform .22s ease;
     z-index:100;
   }
-  #main-area{margin-left:0}
+  #main-area{left:0}
   #sidebar.open{transform:translateX(0)}
   .brand-text,.brand-sub,.nav-label,.nav-section,.sb-footer{display:block}
   .brand{padding:10px 11px;justify-content:flex-start}
@@ -532,7 +532,6 @@ footer strong{color:var(--primary)}
       </div>
 
     </div>
-    <footer>Painel Municipal PB &bull; <strong>Cauc_pb</strong> &bull; <strong>SiconfiDiario</strong> &bull; <strong>Siconficombase</strong> &bull; <span id="footerDate"></span></footer>
   </div>
 </div>
 
@@ -1018,6 +1017,12 @@ function anDetFiltered(){
 }
 function anDetRender(){anDetPage=1;anDetDraw();}
 function anDetDraw(){
+  if(!AN_DET_DATA){
+    document.getElementById('an-det-body').innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);font-size:.8rem">&#8987; Carregando dados de verificação&hellip;</td></tr>';
+    document.getElementById('an-det-count').textContent='';
+    document.getElementById('an-det-pag').innerHTML='';
+    return;
+  }
   var data=anDetFiltered(),total=data.length;
   var pages=Math.max(1,Math.ceil(total/AN_DET_PS));
   if(anDetPage>pages)anDetPage=pages;
