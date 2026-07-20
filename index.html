@@ -66,7 +66,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .sb-footer{margin-top:auto;padding:10px 14px;font-size:.6rem;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.1)}
 
 /* ── MAIN ── */
-#main-area{display:flex;flex-direction:column;overflow:hidden;margin-left:200px;width:calc(100% - 200px);height:100vh}
+#main-area{display:flex;flex-direction:column;margin-left:200px;width:calc(100% - 200px);height:100vh;min-height:0}
 #topbar{
   background:linear-gradient(135deg,#7A4A10 0%,var(--primary) 60%,var(--prim2) 100%);
   padding:13px 26px;display:flex;align-items:center;gap:12px;
@@ -251,7 +251,7 @@ footer strong{color:var(--primary)}
 .an-dim-card.DIII{border-left:4px solid var(--orange)}
 .an-dim-card.DIV{border-left:4px solid #7A4AB5}
 .an-dim-header{display:flex;align-items:center;justify-content:space-between}
-.an-dim-name{font-size:.95rem;font-weight:800;color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px;transition:color .15s}
+.an-dim-name{font-size:.9rem;font-weight:800;color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px;transition:color .15s;white-space:normal;line-height:1.3}
 .an-dim-name:hover{color:var(--primary)}
 .an-dim-sub{font-size:.68rem;color:var(--muted);font-weight:600;margin-top:1px}
 .an-dim-body{display:flex;align-items:center;gap:18px}
@@ -467,7 +467,7 @@ footer strong{color:var(--primary)}
 
         <!-- 1. Cards das 4 dimensões -->
         <div class="section-title">Desempenho por Dimens&atilde;o</div>
-        <div id="an-dim-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:22px"></div>
+        <div id="an-dim-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:22px"></div>
 
         <!-- 2. Gráficos de barras -->
         <div class="an-charts-row" id="an-charts-row" style="display:none">
@@ -1009,7 +1009,7 @@ function anDetFiltered(){
   var dim=document.getElementById('an-det-dim').value;
   return AN_DET_DATA.rows.filter(function(r){
     if(r[1]!==anDetMuni)return false;
-    if(anDetAno&&r[0]!==anDetAno)return false;
+    if(anDetAno&&String(r[0])!==String(anDetAno))return false;
     var info=AN_DET_DATA.codes[r[2]]||[];
     if(dim&&info[0]!==dim)return false;
     if(s&&!(r[2].toLowerCase().includes(s)||(info[2]&&info[2].toLowerCase().includes(s))||(info[3]&&info[3].toLowerCase().includes(s))))return false;
