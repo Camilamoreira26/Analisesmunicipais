@@ -968,18 +968,12 @@ function anRankICFDraw(){
   }
   renderRI(1,AN_RANK_ROWS,AN_RANK_PAGE);
   renderRI(0,AN_ICF_ROWS,AN_ICF_PAGE);
-
-
-
-
-
-
-
 }
 function anRIPage(isRank,p){
   if(isRank)AN_RANK_PAGE=p; else AN_ICF_PAGE=p;
   anRankICFDraw();
 }
+function anDrawRankICF(rows){
   var rankRow=document.getElementById('an-rank-row');
   if(!rows.length){rankRow.style.display='none';return;}
   rankRow.style.display='';
@@ -988,6 +982,12 @@ function anRIPage(isRank,p){
   AN_RANK_PAGE=1;AN_ICF_PAGE=1;
   anRankICFDraw();
 }
+
+
+
+
+
+
 
 // Detalhe por verificação
 var AN_DET_DATA=null;
